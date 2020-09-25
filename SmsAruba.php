@@ -33,7 +33,7 @@ class SmsAruba
 
     public function sendSms( $username, $password, $tel=[], $message="", $sender=NULL, $prefix="+39",$delivery_time=NULL)
     { 
-        $auth_key = $this->login($sms_config[$username,$password);
+        $auth_key = $this->login($username,$password);
         
         foreach($tel as $nt){
             $telp[] = substr($nf, 0, 1)=="+" ? $nt : $prefix.$nt;

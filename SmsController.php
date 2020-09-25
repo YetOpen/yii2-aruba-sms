@@ -1,10 +1,5 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
-
+namespace yetopen\smsaruba;
 
 use yii\console\Controller;
 use Yii;
@@ -25,7 +20,7 @@ class SmsController extends Controller
      */
     public function actionSend($username, $password, $tel, $message, $sender=NULL, $prefix="+39",$delivery_time=NULL)
     {
-        $sms = new \app\components\SmsAruba;
+        $sms = new yetopen\smsaruba\SmsAruba;
         
     	$sms->sendSms( $username, $password, $tel, $message, $sender, $prefix,$delivery_time);
     }

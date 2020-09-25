@@ -1,0 +1,21 @@
+{
+    "name": "yetopen/yii2-sms-aruba",
+    "description": "Invio sms tramite api aruba",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension"],
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Giorgia Menozzi",
+            "email": "giorgia.menozzi@yetopen.it"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "yetopen\\smsaruba\\": ""
+        }
+    }
+}

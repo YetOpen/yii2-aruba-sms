@@ -1,31 +1,14 @@
-Invio sms tramite api aruba
+Sending SMS via Aruba api
 ===========================
-Invio sms tramite api aruba
+Sending SMS via Aruba api
 
 Installation
 ------------
 
-The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
-
-Either run
+The preferred way to install this extension is by adding
 
 ```
-php composer.phar require --prefer-dist yetopen/yii2-sms-aruba "*"
-```
-
-or add
-
-```
-"yetopen/yii2-sms-aruba": "*"
+"yetopen/yii2-sms-aruba": "@dev"
 ```
 
 to the require section of your `composer.json` file.
-
-
-Usage
------
-
-Once the extension is installed, simply use it in your code by  :
-
-```php
-<?= \yetopen\smsaruba\AutoloadExample::widget(); ?>```

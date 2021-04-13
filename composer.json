@@ -1,6 +1,6 @@
 {
     "name": "yetopen/yii2-sms-aruba",
-    "description": "Invio sms tramite api aruba",
+    "description": "Sending SMS via Aruba api",
     "type": "yii2-extension",
     "keywords": ["yii2","extension"],
     "license": "GPL-2.0",

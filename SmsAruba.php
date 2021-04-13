@@ -7,7 +7,7 @@ class SmsAruba
     const BASEURL = "https://adminsms.aruba.it/API/v1.0/REST/";
 
     const MESSAGE_HIGH_QUALITY="N";
-    const MESSAGE_MEDIUM_QUALITY="L";
+    const MESSAGE_MEDIUM_QUALITY="L";   
 
         /**
      * Authenticates the user given it's username and password.
@@ -52,8 +52,6 @@ class SmsAruba
         }
         $payload['returnCredits'] = "true2";
 
-        echo($payload);
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $sms_config['site']);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -69,12 +67,20 @@ class SmsAruba
         $info = curl_getinfo($ch);
         curl_close($ch);
 
-        if ($info['http_code'] != 201) {
-            echo('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+        function YArubaSmsException() {
+            if ($info['http_code'] != 201) {
+                throw new Exception('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+            }
+            else {
+                $obj = json_decode($response);
+                print_r($obj);
+            }
         }
-        else {
-            $obj = json_decode($response);
-            print_r($obj);
+        try {
+            YArubaSmsException();
+        }
+        catch(Exception $YArubaSmsException) {
+            echo 'Error: '.$YArubaSmsException->getMessage();
         }
     }
 }

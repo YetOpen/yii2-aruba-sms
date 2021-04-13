@@ -38,20 +38,21 @@ class SmsAruba
         foreach($tel as $nt){
             $telp[] = substr($nf, 0, 1)=="+" ? $nt : $prefix.$nt;
         }
-        $tel_prefix = '"'.implode( '", "',$telp).'"';
-        $payload = '{' . 
-          '    "message_type": '.self::MESSAGE_HIGH_QUALITY.', ' . 
-          '    "message": "'.$message.'", ' . 
-          '    "recipient": ['.$tel_prefix. 
-          '    ], ';
+        $payload = [
+            "message_type" => self::MESSAGE_HIGH_QUALITY,
+            "message" => $message,
+            "recipient" => $telp,
+        ];
+        
         if (!is_null($sender)){
-            $payload.=  '    "sender": "'.$sender.'", ';
+            $payload['sender'] = $sender;
         }
         if (!is_null($delivery_time)){
-            $payload.='    "scheduled_delivery_time": "'.$delivery_time.'", ';
+            $payload['scheduled_delivery_time'] = $delivery_time;
         }
-        $payload.= '    "returnCredits": true' . 
-          '}';
+        $payload['returnCredits'] = "true2";
+
+        echo($payload);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $sms_config['site']);
@@ -63,7 +64,7 @@ class SmsAruba
         ));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         $response = curl_exec($ch);
         $info = curl_getinfo($ch);
         curl_close($ch);

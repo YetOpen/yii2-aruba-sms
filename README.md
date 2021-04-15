@@ -39,7 +39,7 @@ Insert the following script in the page (Ex. About.php)
 
 <?php
     Yii::$app->smsaruba->sendSms(
-        ['+393347335668'],
+        ['+393344556677'],
         'Hi, this is a test!'
     );
 ?>

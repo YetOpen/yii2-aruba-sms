@@ -25,6 +25,18 @@ class SmsAruba extends Component
     const MESSAGE_MEDIUM_QUALITY="L";
 
     /**
+     * Check the length of the message.
+     * 
+     * @param string $message Message to check.
+     */
+    private function messageValidator($message) {
+        $model = DynamicModel::validateData(compact('message'), [['message', 'string', 'length' => [2, 1000]]]);
+        if ($model->hasErrors()) {
+            throw new YArubaSmsException('Error! message must be between 2 and 1000 char');
+        }
+    }
+
+    /**
      * Authenticates the user given it's username and password.
      * 
      * @return string $response Response from Aruba: returns the pair user_key, Session_key.
@@ -68,7 +80,7 @@ class SmsAruba extends Component
     {
         $auth_key = $this->login();
 
-        messageValidator($message);
+        $this->messageValidator($message);
 
         foreach($tel as $nt){
             $telp[] = substr($nt, 0, 1)=="+" ? $nt : $prefix.$nt;
@@ -118,11 +130,4 @@ class SmsAruba extends Component
 
 class YArubaSmsException extends Exception {
     
-}
-
-function messageValidator($message) {
-    $model = DynamicModel::validateData(compact('message'), [['message', 'string', 'length' => [2, 1000]]]);
-    if ($model->hasErrors()) {
-        throw new YArubaSmsException('Error! message must be between 2 and 1000 char');
-    }
 }

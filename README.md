@@ -1,9 +1,10 @@
-Sending SMS via Aruba api
-===========================
+# Sending SMS via Aruba api
+
 Sending SMS via Aruba api
 
-Installation
-------------
+Service by: https://hosting.aruba.it/servizio-sms.aspx
+
+## Installation
 
 The preferred way to install this extension is through composer.
 
@@ -33,14 +34,10 @@ To use the Setting Component, you need to configure the components array in your
 Usage
 ---------
 
-Insert the following script in the page (Ex. About.php)
+Make a call like this:
 ```php
-// Create an action in your page...
-
-<?php
-    Yii::$app->smsaruba->sendSms(
-        ['+393344556677'],      // Enter the number you want to send the message to; (the prefix is not necessary)
-        'Hi, this is a test!'   // The message to send
-    );
-?>
+Yii::$app->smsaruba->sendSms(
+    ['+393344556677'],      // Enter the number you want to send the message to; (the prefix is not necessary)
+    'Hi, this is a test!'   // The message to send
+);
 ```

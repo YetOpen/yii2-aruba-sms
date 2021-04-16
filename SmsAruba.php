@@ -34,14 +34,12 @@ class SmsAruba extends Component
         $info = curl_getinfo($ch);
         curl_close($ch);
 
-        if ($info['http_code'] != 200) {
-            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response . '<br>');
-            if ($info['http_code'] == 404) {
-                throw new YArubaSmsException('Login Failed: wrong or non-existent credentials, try again');  #404; credentials are incorrect
-            }
-            else {
-                throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            }
+        if ($info['http_code'] == 404) {
+            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+            throw new YArubaSmsException('Login Failed: wrong or non-existent credentials, try again');  #404: credentials are incorrect
+        } else if ($info['http_code'] != 200) {
+            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+            throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
         }
         return explode(";", $response);
     }

@@ -1,17 +1,13 @@
 <?php
-namespace app\components;
+namespace yetopen\smsaruba;
 
 use Yii;
 use yii\base\Component;
 use linslin\yii2\curl;
 use yii\helpers\VarDumper;
 use yii\helpers\Json;
-use yii\base\UserException;
+use yii\base\Exception;
 
-require __DIR__.'/../vendor/autoload.php';
-
-
-define("BASEURL", "https://adminsms.aruba.it/API/v1.0/REST/");
 
 class SmsAruba extends Component
 {
@@ -20,18 +16,17 @@ class SmsAruba extends Component
     /** @var string Your password */
     public $password;
 
-    # const BASEURL = "https://adminsms.aruba.it/API/v1.0/REST/";
-
+    const BASEURL = "https://adminsms.aruba.it/API/v1.0/REST/";
     const MESSAGE_HIGH_QUALITY="N";
     const MESSAGE_MEDIUM_QUALITY="L";
 
-        /**
+    /**
      * Authenticates the user given it's username and password.
      * Returns the pair user_key, Session_key
      */
     function login() {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, BASEURL.'login?username='.$this->username.'&password='.urlencode($this->password));
+        curl_setopt($ch, CURLOPT_URL, self::BASEURL.'login?username='.$this->username.'&password='.urlencode($this->password));
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
@@ -41,7 +36,12 @@ class SmsAruba extends Component
 
         if ($info['http_code'] != 200) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response . '<br>');
-            throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response . '<br>');  #404; credentials are incorrect
+            if ($info['http_code'] == 404) {
+                throw new YArubaSmsException('Login Failed: wrong or non-existent credentials, try again');  #404; credentials are incorrect
+            }
+            else {
+                throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+            }
         }
         return explode(";", $response);
     }
@@ -68,7 +68,7 @@ class SmsAruba extends Component
         $payload['returnCredits'] = "true";
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, BASEURL.'sms');
+        curl_setopt($ch, CURLOPT_URL, self::BASEURL.'sms');
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Content-type: application/json',
             'user_key: '.$auth_key[0],
@@ -83,8 +83,8 @@ class SmsAruba extends Component
         curl_close($ch);
 
         if ($info['http_code'] != 201) {
-            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response . '<br>');
-            throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response . '<br>');
+            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+            throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
         }
         else {
             $obj = json_decode($response);
@@ -93,6 +93,6 @@ class SmsAruba extends Component
     }
 }
 
-class YArubaSmsException extends UserException {
-
+class YArubaSmsException extends Exception {
+    
 }

@@ -8,9 +8,7 @@ namespace yetopen\smsaruba;
 
 use Yii;
 use yii\base\Component;
-use linslin\yii2\curl;
 use yii\helpers\VarDumper;
-use yii\helpers\Json;
 use yii\base\Exception;
 
 
@@ -27,7 +25,8 @@ class SmsAruba extends Component
 
     /**
      * Authenticates the user given it's username and password.
-     * Returns the pair user_key, Session_key
+     * 
+     * @return string $response Response from Aruba: returns the pair user_key, Session_key.
      */
     function login() {
         $ch = curl_init();

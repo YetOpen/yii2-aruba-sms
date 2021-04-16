@@ -10,6 +10,7 @@ use Yii;
 use yii\base\Component;
 use yii\helpers\VarDumper;
 use yii\base\Exception;
+use yii\base\DynamicModel;
 
 
 class SmsAruba extends Component
@@ -67,6 +68,8 @@ class SmsAruba extends Component
     {
         $auth_key = $this->login();
 
+        messageValidator($message);
+
         foreach($tel as $nt){
             $telp[] = substr($nt, 0, 1)=="+" ? $nt : $prefix.$nt;
         };
@@ -115,4 +118,11 @@ class SmsAruba extends Component
 
 class YArubaSmsException extends Exception {
     
+}
+
+function messageValidator($message) {
+    $model = DynamicModel::validateData(compact('message'), [['message', 'string', 'length' => [2, 1000]]]);
+    if ($model->hasErrors()) {
+        throw new YArubaSmsException('Error! message must be between 2 and 1000 char');
+    }
 }

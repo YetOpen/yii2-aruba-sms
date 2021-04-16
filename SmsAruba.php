@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * based on the APIs listed here: https://smsdevelopers.aruba.it/
+ */
+
 namespace yetopen\smsaruba;
 
 use Yii;
@@ -36,7 +41,7 @@ class SmsAruba extends Component
 
         if ($info['http_code'] == 404) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new YArubaSmsException('Login Failed: wrong or non-existent credentials, try again');  #404: credentials are incorrect
+            throw new YArubaSmsException('Login Failed: Credentials are incorrect');  #404: credentials are incorrect
         } else if ($info['http_code'] != 200) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
             throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
@@ -44,6 +49,21 @@ class SmsAruba extends Component
         return explode(";", $response);
     }
 
+    /**
+     * Send the message given the phone number and message.
+     * 
+     * @param array $tel Recipient number.
+     * 
+     * @param string $message Message to send.
+     * 
+     * @param string|NULL $sender (optional) Sender phone,l which takes a string or can be NULL.
+     * 
+     * @param string $prefix Prefix (optional) Prefix number, default is: "+39".
+     * 
+     * @param string|NULL $delivery_time (optional) Time of sending the message, which takes a string or can be NULL.
+     * 
+     * @return string $response Response from Aruba.
+     */
     public function sendSms($tel=[], $message="", $sender=NULL, $prefix="+39",$delivery_time=NULL)
     {
         $auth_key = $this->login();
@@ -80,13 +100,16 @@ class SmsAruba extends Component
         $info = curl_getinfo($ch);
         curl_close($ch);
 
-        if ($info['http_code'] != 201) {
+        if ($info['http_code'] == 401) {
+            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+            throw new YArubaSmsException('Sending failed: User_key, Token or Session_key are invalid or not provided');
+        }
+        else if ($info['http_code'] != 201) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
             throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
         }
         else {
-            $obj = json_decode($response);
-            Yii::trace($obj, true);
+            Yii::trace($response);
         }
     }
 }

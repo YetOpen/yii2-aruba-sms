@@ -32,7 +32,7 @@ class SmsAruba extends Component
     private function messageValidator($message) {
         $model = DynamicModel::validateData(compact('message'), [['message', 'string', 'length' => [2, 1000]]]);
         if ($model->hasErrors()) {
-            throw new YArubaSmsException('Error! message must be between 2 and 1000 char');
+            throw new SmsArubaException('Error! message must be between 2 and 1000 char');
         }
     }
 
@@ -53,10 +53,10 @@ class SmsAruba extends Component
 
         if ($info['http_code'] == 404) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new YArubaSmsException('Login Failed: Credentials are incorrect');  #404: credentials are incorrect
+            throw new SmsArubaException(Yii::t('app','Login Failed: Credentials are incorrect'));  #404: credentials are incorrect
         } else if ($info['http_code'] != 200) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+            throw new SmsArubaException(Yii::t('app','Error! http code: {http_code}, body message: {response}', ['http_code' => $info['http_code'], 'response' => $response]));die();
         }
         return explode(";", $response);
     }
@@ -116,11 +116,11 @@ class SmsAruba extends Component
 
         if ($info['http_code'] == 401) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new YArubaSmsException('Sending failed: User_key, Token or Session_key are invalid or not provided');
+            throw new SmsArubaException(Yii::t('Sending failed: User_key, Token or Session_key are invalid or not provided'));
         }
         else if ($info['http_code'] != 201) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new YArubaSmsException('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+            throw new SmsArubaException(Yii::t('app','Error! http code: {http_code}, body message: {response}', ['http_code' => $info['http_code'], 'response' => $response]));
         }
         else {
             Yii::trace($response);
@@ -128,6 +128,6 @@ class SmsAruba extends Component
     }
 }
 
-class YArubaSmsException extends Exception {
+class SmsArubaException extends Exception {
     
 }

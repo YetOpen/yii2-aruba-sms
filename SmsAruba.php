@@ -32,7 +32,7 @@ class SmsAruba extends Component
     private function messageValidator($message) {
         $model = DynamicModel::validateData(compact('message'), [['message', 'string', 'length' => [2, 1000]]]);
         if ($model->hasErrors()) {
-            throw new SmsArubaException('Error! message must be between 2 and 1000 char');
+            throw new SmsArubaException(Yii::t('app','Error! message must be between 2 and 1000 char'));
         }
     }
 

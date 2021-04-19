@@ -1,8 +1,6 @@
 # Sending SMS via Aruba api
 
-Sending SMS via Aruba api
-
-Service by: https://hosting.aruba.it/servizio-sms.aspx
+Sending SMS via [Aruba SMS](https://hosting.aruba.it/servizio-sms.aspx).
 
 ## Installation
 
@@ -18,26 +16,25 @@ or add
 ```
 to the require section of your `composer.json` file.
 
-**Component setup**
+## Configuration
 
-To use the Setting Component, you need to configure the components array in your application configuration:
+In the application configuration, `components` section, add the following:
+
 ```php
-'components' => [
     'smsaruba' => [
         'class'     => yetopen\smsaruba\SmsAruba::class,
-        'username'  => 'MyUsername',    // Your Aruba usurname
-        'password'  => 'MyPassword',    // Your Aruba password
+        'username'  => 'MyUsername',    // ArubaSMS username (Smsxxx)
+        'password'  => 'MyPassword',    // ArubaSMS password ()
     ],
-],
 ```
 
-Usage
----------
+## Usage
 
-Make a call like this:
+You can send SMS by calling `sendSms`:
+
 ```php
 Yii::$app->smsaruba->sendSms(
-    ['+393344556677'],      // Enter the number you want to send the message to; (the prefix is not necessary)
+    ['+393344556677'],      // Enter the number(s) you want to send the message to; (the prefix is not necessary)
     'Hi, this is a test!'   // The message to send
 );
 ```

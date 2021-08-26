@@ -25,6 +25,7 @@ In the application configuration, `components` section, add the following:
         'class'     => yetopen\smsaruba\SmsAruba::class,
         'username'  => 'MyUsername',    // ArubaSMS username (Smsxxx)
         'password'  => 'MyPassword',    // ArubaSMS password ()
+        'senderName' => 'Sender',       // The default sender name
     ],
 ```
 

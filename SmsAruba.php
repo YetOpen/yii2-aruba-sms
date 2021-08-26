@@ -22,6 +22,8 @@ class SmsAruba extends Component implements SmsSenderInterface
     public $username;
     /** @var string Your password */
     public $password;
+    /** @var string The default sender name */
+    public $senderName;
 
     const BASEURL = "https://adminsms.aruba.it/API/v1.0/REST/";
     const MESSAGE_HIGH_QUALITY="N";
@@ -93,7 +95,6 @@ class SmsAruba extends Component implements SmsSenderInterface
      */
     public function send($tel, $message, $sender=NULL, $prefix="+39",$delivery_time=NULL)
     {
-        return "WELA";
         $auth_key = $this->login();
 
         $this->messageValidator($message);
@@ -106,7 +107,8 @@ class SmsAruba extends Component implements SmsSenderInterface
             "message" => $message,
             "recipient" => $telp,
         ];
-        
+
+        $sender = $sender ?: $this->senderName;
         if (!is_null($sender)){
             $payload['sender'] = $sender;
         }

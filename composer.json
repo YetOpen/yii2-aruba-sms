@@ -12,7 +12,8 @@
     ],
     "require": {
         "yiisoft/yii2": "~2.0.0",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "yetopen/yii2-sms-sender-interface": "*"
     },
     "autoload": {
         "psr-4": {

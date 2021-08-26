@@ -1,19 +1,22 @@
 <?php
 
-/**
- * based on the APIs listed here: https://smsdevelopers.aruba.it/
- */
 
 namespace yetopen\smsaruba;
 
+use yetopen\smssender\SmsSenderInterface;
 use Yii;
 use yii\base\Component;
-use yii\helpers\VarDumper;
 use yii\base\Exception;
 use yii\base\DynamicModel;
 
 
-class SmsAruba extends Component
+/**
+ * Based on the APIs listed here: https://smsdevelopers.aruba.it/
+ *
+ * @property $minTextLength int
+ * @property $maxTextLength int
+ */
+class SmsAruba extends Component implements SmsSenderInterface
 {
     /** @var string Your username */
     public $username;
@@ -24,15 +27,39 @@ class SmsAruba extends Component
     const MESSAGE_HIGH_QUALITY="N";
     const MESSAGE_MEDIUM_QUALITY="L";
 
+    const MIN_TEXT_LENGTH = 2;
+    const MAX_TEXT_LENGTH = 918;
+
+    /**
+     * @return int
+     */
+    public function getMinTextLength()
+    {
+        return static::MIN_TEXT_LENGTH;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxTextLength()
+    {
+        return static::MAX_TEXT_LENGTH;
+    }
+
     /**
      * Check the length of the message.
      * 
      * @param string $message Message to check.
      */
     private function messageValidator($message) {
-        $model = DynamicModel::validateData(compact('message'), [['message', 'string', 'length' => [2, 1000]]]);
+        $model = DynamicModel::validateData(compact('message'), [
+            ['message', 'string', 'length' => [$this->minTextLength, $this->maxTextLength]]
+        ]);
         if ($model->hasErrors()) {
-            throw new SmsArubaException(Yii::t('app','Error! message must be between 2 and 1000 char'));
+            throw new SmsArubaException(Yii::t('app','Error! message must be between {min} and {max} char', [
+                'min' => $this->minTextLength,
+                'max' => $this->maxTextLength,
+            ]));
         }
     }
 
@@ -62,22 +89,11 @@ class SmsAruba extends Component
     }
 
     /**
-     * Send the message given the phone number and message.
-     * 
-     * @param array $tel Recipient number.
-     * 
-     * @param string $message Message to send.
-     * 
-     * @param string|NULL $sender (optional) Sender phone,l which takes a string or can be NULL.
-     * 
-     * @param string $prefix Prefix (optional) Prefix number, default is: "+39".
-     * 
-     * @param string|NULL $delivery_time (optional) Time of sending the message, which takes a string or can be NULL.
-     * 
-     * @return string $response Response from Aruba.
+     * {@inheritdoc}
      */
-    public function sendSms($tel=[], $message="", $sender=NULL, $prefix="+39",$delivery_time=NULL)
+    public function send($tel, $message, $sender=NULL, $prefix="+39",$delivery_time=NULL)
     {
+        return "WELA";
         $auth_key = $this->login();
 
         $this->messageValidator($message);
@@ -116,7 +132,7 @@ class SmsAruba extends Component
 
         if ($info['http_code'] == 401) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new SmsArubaException(Yii::t('Sending failed: User_key, Token or Session_key are invalid or not provided'));
+            throw new SmsArubaException(Yii::t('app','Sending failed: User_key, Token or Session_key are invalid or not provided'));
         }
         else if ($info['http_code'] != 201) {
             Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
@@ -125,6 +141,15 @@ class SmsAruba extends Component
         else {
             Yii::trace($response);
         }
+    }
+
+    /**
+     * @deprecated
+     * @see SmsAruba::send()
+     */
+    public function sendSms($tel, $message, $sender=NULL, $prefix="+39",$delivery_time=NULL)
+    {
+        return $this->send($tel, $message, $sender, $prefix, $delivery_time);
     }
 }
 

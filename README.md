@@ -34,7 +34,7 @@ In the application configuration, `components` section, add the following:
 You can send SMS by calling `sendSms`:
 
 ```php
-Yii::$app->smsaruba->sendSms(
+Yii::$app->smsaruba->send(
     ['+393344556677'],      // Enter the number(s) you want to send the message to; (the prefix is not necessary)
     'Hi, this is a test!'   // The message to send
 );

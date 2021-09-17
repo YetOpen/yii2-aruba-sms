@@ -3,9 +3,8 @@
 
 namespace yetopen\smsaruba;
 
-use yetopen\smssender\SmsSenderInterface;
+use yetopen\smssender\BaseSmsSender;
 use Yii;
-use yii\base\Component;
 use yii\base\Exception;
 use yii\base\DynamicModel;
 
@@ -16,7 +15,7 @@ use yii\base\DynamicModel;
  * @property $minTextLength int
  * @property $maxTextLength int
  */
-class SmsAruba extends Component implements SmsSenderInterface
+class SmsAruba extends BaseSmsSender
 {
     /** @var string Your username */
     public $username;
@@ -24,6 +23,8 @@ class SmsAruba extends Component implements SmsSenderInterface
     public $password;
     /** @var string The default sender name */
     public $senderName;
+    /** @var bool Enable the logging of errors */
+    public $enableLogging = TRUE;
 
     const BASEURL = "https://adminsms.aruba.it/API/v1.0/REST/";
     const MESSAGE_HIGH_QUALITY="N";
@@ -67,8 +68,9 @@ class SmsAruba extends Component implements SmsSenderInterface
 
     /**
      * Authenticates the user given it's username and password.
-     * 
+     *
      * @return string $response Response from Aruba: returns the pair user_key, Session_key.
+     * @throws SmsArubaException
      */
     function login() {
         $ch = curl_init();
@@ -81,39 +83,46 @@ class SmsAruba extends Component implements SmsSenderInterface
         curl_close($ch);
 
         if ($info['http_code'] == 404) {
-            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new SmsArubaException(Yii::t('app','Login Failed: Credentials are incorrect'));  #404: credentials are incorrect
+            $this->logError(
+                'Error! Login Failed: Credentials are incorrect. Http code: ' . $info['http_code'] . ', body message: ' . $response,
+                __METHOD__
+            );
+            return FALSE;
         } else if ($info['http_code'] != 200) {
-            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new SmsArubaException(Yii::t('app','Error! http code: {http_code}, body message: {response}', ['http_code' => $info['http_code'], 'response' => $response]));die();
+            $this->logError('Error! http code: ' . $info['http_code'] . ', body message: ' . $response, __METHOD__);
+            return FALSE;
         }
         return explode(";", $response);
     }
 
     /**
      * {@inheritdoc}
+     * @throws SmsArubaException
      */
-    public function send($tel, $message, $sender=NULL, $prefix="+39",$delivery_time=NULL)
+    public function sendMessage($message)
     {
         $auth_key = $this->login();
+        if($auth_key === FALSE) {
+            return FALSE;
+        }
 
-        $this->messageValidator($message);
+        $this->messageValidator($message->content);
 
-        foreach($tel as $nt){
-            $telp[] = substr($nt, 0, 1)=="+" ? $nt : $prefix.$nt;
-        };
+        $numbers = array_map(function ($number) use ($message) {
+            return substr($number, 0, 1)=="+" ? $number : $message->prefix.$number;
+        }, $message->numbers);
         $payload = [
             "message_type" => self::MESSAGE_HIGH_QUALITY,
-            "message" => $message,
-            "recipient" => $telp,
+            "message" => $message->content,
+            "recipient" => $numbers,
         ];
 
-        $sender = $sender ?: $this->senderName;
+        $sender = $message->sender ?: $this->senderName;
         if (!is_null($sender)){
             $payload['sender'] = $sender;
         }
-        if (!is_null($delivery_time)){
-            $payload['scheduled_delivery_time'] = $delivery_time;
+        if (!is_null($message->deliveryTime)){
+            $payload['scheduled_delivery_time'] = $message->deliveryTime;
         }
         $payload['returnCredits'] = "true";
 
@@ -133,16 +142,18 @@ class SmsAruba extends Component implements SmsSenderInterface
         curl_close($ch);
 
         if ($info['http_code'] == 401) {
-            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new SmsArubaException(Yii::t('app','Sending failed: User_key, Token or Session_key are invalid or not provided'));
+            $this->logError(
+                'Error! Sending failed: User_key, Token or Session_key are invalid or not provided. Http code: ' . $info['http_code'] . ', body message: ' . $response,
+                __METHOD__
+            );
+            return FALSE;
+        } else if ($info['http_code'] != 201) {
+            $this->logError("Error! Http code: {$info['http_code']}, body message: $response", __METHOD__);
+            return FALSE;
+        } else {
+            $this->debug($response, __METHOD__);
         }
-        else if ($info['http_code'] != 201) {
-            Yii::error('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-            throw new SmsArubaException(Yii::t('app','Error! http code: {http_code}, body message: {response}', ['http_code' => $info['http_code'], 'response' => $response]));
-        }
-        else {
-            Yii::trace($response);
-        }
+        return TRUE;
     }
 
     /**

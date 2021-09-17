@@ -18,7 +18,7 @@ to the require section of your `composer.json` file.
 
 ## Configuration
 
-In the application configuration, `components` section, add the following:
+In the application configuration, `components` section, add the following:
 
 ```php
     'smsaruba' => [
@@ -31,7 +31,7 @@ In the application configuration, `components` section, add the following:
 
 ## Usage
 
-You can send SMS by calling `sendSms`:
+You can send SMS by calling `send`:
 
 ```php
 Yii::$app->smsaruba->send(

@@ -1,6 +1,11 @@
 Yii2 Aruba SMS
 ===========================
 
+0.1.2 13 Sep, 2021
+-------------------------
+
+- Adds property of the component to set the encoding.
+
 0.1.1 13 Sep, 2021
 -------------------------
 

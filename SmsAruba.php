@@ -10,13 +10,26 @@ use yii\base\DynamicModel;
 
 
 /**
- * Based on the APIs listed here: https://smsdevelopers.aruba.it/
+ * Based on the APIs listed here: https://smsdevelopers.aruba.it/#sms-send-api
  *
  * @property $minTextLength int
  * @property $maxTextLength int
  */
 class SmsAruba extends BaseSmsSender
 {
+
+    const BASEURL = "https://adminsms.aruba.it/API/v1.0/REST/";
+    const MESSAGE_HIGH_QUALITY="N";
+    const MESSAGE_MEDIUM_QUALITY="L";
+    /* Default standard encoding */
+    const GSM_ENCODING = 'gsm';
+    /* For non standard character sets */
+    const UCS2_ENCODING = 'ucs2';
+
+    const MIN_TEXT_LENGTH = 2;
+    const MAX_TEXT_LENGTH_GSM = 918;
+    const MAX_TEXT_LENGTH_UCS2 = 450;
+
     /** @var string Your username */
     public $username;
     /** @var string Your password */
@@ -25,13 +38,12 @@ class SmsAruba extends BaseSmsSender
     public $senderName;
     /** @var bool Enable the logging of errors */
     public $enableLogging = TRUE;
-
-    const BASEURL = "https://adminsms.aruba.it/API/v1.0/REST/";
-    const MESSAGE_HIGH_QUALITY="N";
-    const MESSAGE_MEDIUM_QUALITY="L";
-
-    const MIN_TEXT_LENGTH = 2;
-    const MAX_TEXT_LENGTH = 918;
+    /**
+     * The [SMS encoding](https://en.wikipedia.org/wiki/GSM_03.38). Use UCS2 for non standard character sets.
+     * Defaults to 'gsm' as per Aruba standards.
+     * @var string
+     */
+    public $encoding = self::GSM_ENCODING;
 
     /**
      * @return int
@@ -46,7 +58,7 @@ class SmsAruba extends BaseSmsSender
      */
     public function getMaxTextLength()
     {
-        return static::MAX_TEXT_LENGTH;
+        return $this->encoding === static::GSM_ENCODING ? static::MAX_TEXT_LENGTH_GSM : static::MAX_TEXT_LENGTH_UCS2;
     }
 
     /**
@@ -115,6 +127,7 @@ class SmsAruba extends BaseSmsSender
             "message_type" => self::MESSAGE_HIGH_QUALITY,
             "message" => $message->content,
             "recipient" => $numbers,
+            "encoding" => $this->encoding,
         ];
 
         $sender = $message->sender ?: $this->senderName;

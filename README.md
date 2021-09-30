@@ -18,6 +18,8 @@ to the require section of your `composer.json` file.
 
 ## Configuration
 
+Before setting up the component it is advised check out [Aruba's API documentation](https://smsdevelopers.aruba.it/#sms-send-api) to understand what each parameter does.
+
 In the application configuration, `components` section, add the following:
 
 ```php
@@ -26,6 +28,7 @@ In the application configuration, `components` section, add the following:
         'username'  => 'MyUsername',    // ArubaSMS username (Smsxxx)
         'password'  => 'MyPassword',    // ArubaSMS password ()
         'senderName' => 'Sender',       // The default sender name
+        'encoding' => yetopen\smsaruba\SmsAruba::GSM_ENCODING, // encoding of the text
     ],
 ```
 
